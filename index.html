@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+      body{
+        width: 100%;
+        height: 100vh;
+        margin: 0%;
+        padding: 0%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      form{
+        margin: 2%;
+        text-align: center;
+        
+      }
+      input{
+        font-size: 16px;
+        border: none;
+        border-bottom: 2px solid rgb(89, 7, 197);
+        background: inherit;
+        padding: 2%;
+      }
+      button{
+        border: none;
+        font-size: 16px;
+        padding: 2%;
+        margin-left: 2%;
+        border-radius: 3px;
+        background: rgb(89, 7, 197);
+        color: #fff;
+      }
+        canvas{
+            visibility: hidden;
+            display: none;
+            opacity: 0;
+        }
+        img{
+            width: 400px;
+            height: 400px;
+            /* background: #ee44ee; */
+        }
+    </style>
+</head>
+<body>
+    <div>
+      <form method="POST" action="localhost:3000/">
+      <input type="text" id="text" placeholder="Enter anything..." required/>
+      <button type="submit" id="btn">Convert</button>
+      </form>
+      <canvas id="cvs" width="400px" height="400px"></canvas>
+      <img id="img"/>
+    </div>
+    <script src="jquery.js"></script>
+    <script>        
+        let cvs = document.getElementById('cvs');
+        let img = document.getElementById('img');   
+        let contxt = cvs.getContext('2d');
+        let btn  = document.getElementById('btn');
+        contxt.fillRect(0, 0,cvs.width, cvs.height);
+        btn.addEventListener("click",() =>{
+            let inp = document.getElementById('text').value;
+            console.log(inp);
+            contxt.font = "bold 18pt Arial";
+            contxt.textAlign = "center";
+            contxt.fillStyle="#e4e4e4";         
+            var maxWidth = 250;
+            var lineHeight = 24;
+            var x = (cvs.width - maxWidth);
+            var y = 60;
+            contxt.fillRect(0,0,cvs.width,cvs.height);   
+            contxt.fillStyle = '#000'; 
+            wrapText(contxt, inp,cvs.width*0.5,cvs.height*0.4, 300, lineHeight);
+            let url = cvs.toDataURL('image/jpeg', 1.0);
+            console.log(url);
+            img.src = url;
+            Pic = url.replace(/^data:image\/(png|jpg);base64,/, "")
+
+            $.ajax({
+         type: 'POST',
+         crossDomain: true,
+         headers: {  'Access-Control-Allow-Origin': 'htt://site allowed to access' },
+        url: 'http://127.0.0.1:3000/',
+        data: '{ "imageData" : "' + Pic + '" }',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: function (msg) {
+            alert("Done, Picture Uploaded.");
+        }
+    });
+        });        
+
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        var words = text.split(' ');
+        var line = '';
+
+        for(var n = 0; n < words.length; n++) {
+          var testLine = line + words[n] + ' ';
+          var metrics = context.measureText(testLine);
+          var testWidth = metrics.width;
+          if (testWidth > maxWidth && n > 0) {
+            context.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+          }
+          else {
+            line = testLine;
+          }
+        }
+        context.fillText(line, x, y);
+      }            
+  
+    </script>
+</body>
+</html>
